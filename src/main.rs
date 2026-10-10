@@ -55,6 +55,7 @@ fn read_input(path: &str) -> std::io::Result<String> {
 fn main() {
     let args: Vec<String> = std::env::args().skip(1).collect();
     match args.first().map(|s| s.as_str()) {
+        Some("manifest") => println!("{}", g::manifest()),
         Some("preview") => {
             let v = g::preview_command(&args[1..].to_vec());
             println!("{}", v["text"].as_str().unwrap_or(""));
