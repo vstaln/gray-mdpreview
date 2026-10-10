@@ -1,0 +1,21 @@
+[package]
+name = "gray-mdpreview"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+description = "Markdown preview: /preview renders markdown+LaTeX to HTML in ~/.gray/preview and opens a browser, with ANSI terminal fallback"
+
+[lib]
+name = "gray_mdpreview"
+path = "src/lib.rs"
+
+[[bin]]
+name = "gray-mdpreview"
+path = "src/main.rs"
+
+[dependencies]
+pulldown-cmark = "0.12"
+serde_json = "1"
+
+[profile.release]
+strip = true
