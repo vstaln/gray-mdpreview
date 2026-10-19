@@ -1,6 +1,6 @@
 [package]
 name = "gray-mdpreview"
-version = "0.1.0"
+version = "0.1.2"
 edition = "2021"
 license = "MIT"
 description = "Markdown preview: /preview renders markdown+LaTeX to HTML in ~/.gray/preview and opens a browser, with ANSI terminal fallback"
