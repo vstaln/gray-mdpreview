@@ -77,9 +77,7 @@ fn extract_math(src: &str) -> (String, Vec<(bool, String)>) {
                         break; // newline first
                     }
                     let before_ok = bytes[close - 1] != b' ';
-                    let after_ok = bytes
-                        .get(close + 1)
-                        .map_or(true, |c| !c.is_ascii_digit());
+                    let after_ok = bytes.get(close + 1).map_or(true, |c| !c.is_ascii_digit());
                     if before_ok && after_ok {
                         math.push((false, src[i + 1..close].to_string()));
                         out.push_str(&format!("MDPMATH{}X", math.len() - 1));
@@ -167,7 +165,11 @@ pub fn write_preview(title: &str, markdown: &str) -> std::io::Result<PathBuf> {
         .map(|d| d.as_secs())
         .unwrap_or(0);
     let name = format!("{}-{ts}.html", slug(title));
-    let path = dir.join(if name.starts_with('-') { &name[1..] } else { &name });
+    let path = dir.join(if name.starts_with('-') {
+        &name[1..]
+    } else {
+        &name
+    });
     std::fs::write(&path, page(title, &render_markdown(markdown)))?;
     Ok(path)
 }
@@ -256,10 +258,7 @@ pub fn render_ansi(src: &str) -> String {
     }
     // put math back as inline code-styled LaTeX
     for (i, (_, tex)) in math.iter().enumerate() {
-        out = out.replace(
-            &format!("MDPMATH{i}X"),
-            &format!("\x1b[2m${tex}$\x1b[0m"),
-        );
+        out = out.replace(&format!("MDPMATH{i}X"), &format!("\x1b[2m${tex}$\x1b[0m"));
     }
     out.trim_end().to_string() + "\n"
 }
@@ -293,7 +292,11 @@ pub fn preview_command(argv: &[String]) -> Value {
     }
     match write_preview(path, &md) {
         Ok(p) => {
-            let how = if open { open_browser(&p) } else { "written (--no-open)".to_string() };
+            let how = if open {
+                open_browser(&p)
+            } else {
+                "written (--no-open)".to_string()
+            };
             json!({"text": format!("preview: {} — {}", p.display(), how)})
         }
         Err(e) => json!({"text": format!("preview write failed: {e}")}),
@@ -308,6 +311,7 @@ pub fn manifest() -> Value {
         "sidecar_args": ["sidecar"],
         "tools": [],
         "commands": ["/preview"],
+        "command_descriptions": {"/preview": "render markdown to HTML and open it"},
         "completion": ["--term", "--no-open"],
         "hooks": [],
     })
