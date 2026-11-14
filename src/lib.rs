@@ -310,7 +310,7 @@ pub fn manifest() -> Value {
         "protocol": PROTOCOL,
         "sidecar_args": ["sidecar"],
         "tools": [],
-        "description": "render",
+        "description": "render markdown files as html in a browser",
         "commands": ["/preview"],
         "command_descriptions": {"/preview": "render markdown to HTML and open it"},
         "completion": ["--term", "--no-open"],
