@@ -61,7 +61,7 @@ fn main() {
     match args.first().map(|s| s.as_str()) {
         Some("manifest") => println!("{}", g::manifest()),
         Some("preview") => {
-            let v = g::preview_command(&args[1..].to_vec());
+            let v = g::preview_command(&args[1..]);
             println!("{}", v["text"].as_str().unwrap_or(""));
         }
         Some("render") => {

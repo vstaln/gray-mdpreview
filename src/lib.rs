@@ -77,7 +77,7 @@ fn extract_math(src: &str) -> (String, Vec<(bool, String)>) {
                         break; // newline first
                     }
                     let before_ok = bytes[close - 1] != b' ';
-                    let after_ok = bytes.get(close + 1).map_or(true, |c| !c.is_ascii_digit());
+                    let after_ok = bytes.get(close + 1).is_none_or(|c| !c.is_ascii_digit());
                     if before_ok && after_ok {
                         math.push((false, src[i + 1..close].to_string()));
                         out.push_str(&format!("MDPMATH{}X", math.len() - 1));
@@ -165,8 +165,8 @@ pub fn write_preview(title: &str, markdown: &str) -> std::io::Result<PathBuf> {
         .map(|d| d.as_secs())
         .unwrap_or(0);
     let name = format!("{}-{ts}.html", slug(title));
-    let path = dir.join(if name.starts_with('-') {
-        &name[1..]
+    let path = dir.join(if let Some(rest) = name.strip_prefix('-') {
+        rest
     } else {
         &name
     });
