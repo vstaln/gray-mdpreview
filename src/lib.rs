@@ -92,8 +92,9 @@ fn extract_math(src: &str) -> (String, Vec<(bool, String)>) {
                 continue;
             }
         }
-        out.push(bytes[i] as char);
-        i += 1;
+        let ch = rest.chars().next().unwrap();
+        out.push(ch);
+        i += ch.len_utf8();
     }
     (out, math)
 }
@@ -156,6 +157,34 @@ fn slug(s: &str) -> String {
     s.trim_matches('-').chars().take(48).collect()
 }
 
+const PREVIEW_KEEP: usize = 32;
+
+fn prune_previews(dir: &std::path::Path) {
+    let Ok(rd) = std::fs::read_dir(dir) else {
+        return;
+    };
+    let mut files: Vec<(std::time::SystemTime, PathBuf)> = rd
+        .filter_map(|e| e.ok())
+        .map(|e| e.path())
+        .filter(|p| p.is_file())
+        .map(|p| {
+            let m = p
+                .metadata()
+                .and_then(|m| m.modified())
+                .unwrap_or(std::time::SystemTime::UNIX_EPOCH);
+            (m, p)
+        })
+        .collect();
+    if files.len() <= PREVIEW_KEEP {
+        return;
+    }
+    files.sort();
+    let excess = files.len() - PREVIEW_KEEP;
+    for (_, path) in files.into_iter().take(excess) {
+        let _ = std::fs::remove_file(path);
+    }
+}
+
 /// Render `markdown` to `~/.gray/preview/<slug>-<ts>.html`; returns the path.
 pub fn write_preview(title: &str, markdown: &str) -> std::io::Result<PathBuf> {
     let dir = preview_dir();
@@ -171,6 +200,7 @@ pub fn write_preview(title: &str, markdown: &str) -> std::io::Result<PathBuf> {
         &name
     });
     std::fs::write(&path, page(title, &render_markdown(markdown)))?;
+    prune_previews(&dir);
     Ok(path)
 }
 
